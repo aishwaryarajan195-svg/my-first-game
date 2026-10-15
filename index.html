@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess the Number!</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 20px;
+    }
+
+    .game {
+      width: 100%;
+      max-width: 420px;
+      padding: 30px 24px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .emoji {
+      font-size: 65px;
+      margin: 15px 0;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin: 7px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    .guess-btn {
+      background: #ffe066;
+      color: #302050;
+    }
+
+    .restart-btn {
+      background: white;
+      color: #563d8b;
+    }
+
+    #message {
+      min-height: 52px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+      margin: 20px 0;
+      background: rgba(0, 0, 0, 0.13);
+      padding: 15px 5px;
+      border-radius: 14px;
+    }
+
+    .stats strong {
+      display: block;
+      font-size: 23px;
+      margin-bottom: 5px;
+    }
+
+    .small {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game">
+    <h1>🎯 Guess the Number!</h1>
+    <p>I'm thinking of a number between 1 and 100.</p>
+
+    <div class="emoji">🤔</div>
+
+    <div class="stats">
+      <div>
+        <strong id="attempts">0</strong>
+        <span class="small">Attempts</span>
+      </div>
+      <div>
+        <strong id="score">100</strong>
+        <span class="small">Score</span>
+      </div>
+    </div>
+
+    <form id="guessForm">
+      <input
+        type="number"
+        id="guess"
+        min="1"
+        max="100"
+        placeholder="Enter a number"
+        required
+      >
+      <button class="guess-btn" type="submit">Make a Guess 🚀</button>
+    </form>
+
+    <p id="message" aria-live="polite">Your adventure starts now!</p>
+
+    <button class="restart-btn" id="restart">
+      🔄 Play Again
+    </button>
+
+    <p class="small">Made with HTML, CSS and JavaScript</p>
+  </main>
+
+  <script>
+    let secretNumber;
+    let attempts;
+    let score;
+    let gameOver;
+
+    const guessInput = document.getElementById("guess");
+    const message = document.getElementById("message");
+    const attemptsDisplay = document.getElementById("attempts");
+    const scoreDisplay = document.getElementById("score");
+    const emoji = document.querySelector(".emoji");
+    const guessForm = document.getElementById("guessForm");
+
+    function startGame() {
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      score = 100;
+      gameOver = false;
+
+      attemptsDisplay.textContent = attempts;
+      scoreDisplay.textContent = score;
+      message.textContent = "Your adventure starts now!";
+      emoji.textContent = "🤔";
+      guessInput.value = "";
+      guessInput.disabled = false;
+      guessForm.querySelector("button").disabled = false;
+      guessInput.focus();
+    }
+
+    guessForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      if (gameOver) return;
+
+      const guess = Number(guessInput.value);
+
+      if (!Number.isInteger(guess) || guess < 1 || guess > 100) {
+        message.textContent = "Enter a whole number from 1 to 100!";
+        return;
+      }
+
+      attempts++;
+      attemptsDisplay.textContent = attempts;
+      score = Math.max(0, 100 - (attempts - 1) * 10);
+      scoreDisplay.textContent = score;
+
+      if (guess === secretNumber) {
+        gameOver = true;
+        message.textContent =
+          "🎉 Correct! You guessed it in " + attempts + " attempt(s)!";
+        emoji.textContent = "🏆";
+        scoreDisplay.textContent = Math.max(10, score);
+        guessInput.disabled = true;
+        guessForm.querySelector("button").disabled = true;
+      } else if (guess < secretNumber) {
+        message.textContent = "📈 Too low! Try a higher number.";
+        emoji.textContent = "🤏";
+      } else {
+        message.textContent = "📉 Too high! Try a lower number.";
+        emoji.textContent = "🤏";
+      }
+
+      if (!gameOver && attempts >= 10) {
+        gameOver = true;
+        message.textContent =
+          "😅 Game over! The number was " + secretNumber + ".";
+        emoji.textContent = "💡";
+        guessInput.disabled = true;
+        guessForm.querySelector("button").disabled = true;
+      }
+
+      if (!gameOver) {
+        guessInput.value = "";
+        guessInput.focus();
+      }
+    });
+
+    document.getElementById("restart").addEventListener("click", startGame);
+
+    startGame();
+  </script>
+</body>
+</html>
